@@ -138,6 +138,7 @@ The possible request that are sent by the server are listed below:
 Below an example of how the communication is conducted can be consulted:
 
 | Action | Message |
+| ------ | ------- |
 | Join session | Client message: 6\|2\|eccar950
 
 Server response: 1\|2\|S S T P,R E H G,D Y R W,U U B P\|,dur,prey,yerd,wrest,burgher,gryde,… |
