@@ -140,17 +140,13 @@ Below an example of how the communication is conducted can be consulted:
 | Action | Message |
 | ------ | ------- |
 | Join session | Client message: 6\|2\|eccar950
-
-Server response: 1\|2\|S S T P,R E H G,D Y R W,U U B P\|,dur,prey,yerd,wrest,burgher,gryde,… |
+| | Server response: 1\|2\|S S T P,R E H G,D Y R W,U U B P\|,dur,prey,yerd,wrest,burgher,gryde,… |
 | Request round start | Client message: 2\|2
-
-Server response: Command processed |
+| | Server response: Command processed |
 | Request statistics | Client message: 4\|2\|eccar950
-
-Server response: 0\|0\|0\|1
+| | Server response: 0\|0\|0\|1
 | Request session statistics | Client message: 7\|3\|eccar950
-
-Server response: 0\|0\|0\|1 |
+| | Server response: 0\|0\|0\|1 |
 
 In order to create a socket-based client the BoggleClient application has to be ran indicating an IP and port number in the following way: -xxx.xxx.xxx:yyyyy. Where the – indicates that a socket will be used, the x’s represent the IP number and the y’s the port number.
 
