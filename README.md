@@ -114,88 +114,68 @@ The messages that are sent by the client to the server will consist of a series 
 
 
 The possible commands and the parameters needed to execute each command are listed in the following table:
-Table 1: commands sent by application clients
-VALUE
-ACTION
-PARAMETERS
-1
-Create a new session
-Maximum number of players, username
-2
-Request round start
-Session ID
-3
-Submit word
-Session ID, username, word
-4
-Request statistics
-Session ID, username
-5
-Finalize session
-Session ID
-6
-Join session
-Session ID, username
-7
-Request session statistics
-Session ID, username
+
+| VALUE | ACTION | PARAMETERS |
+| ----- | ------ | ---------- |
+| 1 | Create a new session | Maximum number of players, username |
+| 2 | Request round start | Session ID |
+| 3 | Submit word | Session ID, username, word |
+| 4 | Request statistics | Session ID, username |
+| 5 | Finalize session | Session ID |
+| 6 | Join session | Session ID, username |
+| 7 | Request session statistics | Session ID, username |
+
 The messages that are sent as replies by the server have a similar structure. The first value indicates the type of answer that was sent, while the rest of the values will contain information related to the request that was received.
+
 The possible request that are sent by the server are listed below:
-Table 2: responses sent by the game server
-VALUE
-RESPONSE TYPE
-INFORMATION RECEIVED
-1
-String version of Session object
-Session ID, game board with each cell separated by commas, list of words in the board solution separated by commas
-2
-String version of BoggleResponse object
-Awarded points, player score, current high score, player ranking
-3
-Simple string
-Confirmation or error message
+
+| VALUE | RESPONSE TYPE | INFORMATION RECEIVED |
+| ----- | ------------- | -------------------- |
+| 1 | String version of Session object | Session ID, game board with each cell separated by commas, list of words in the board solution separated by commas |
+| 2 | String version of BoggleResponse object | Awarded points, player score, current high score, player ranking |
+| 3 | Simple string | Confirmation or error message |
+
 Below an example of how the communication is conducted can be consulted:
-Table 3: example communication between server and socket-based clients
-Action
-Message
-Join session
-Client message: 6|2|eccar950
-Server response: 1|2|S S T P,R E H G,D Y R W,U U B P|,dur,prey,yerd,wrest,burgher,gryde,…
-Request round start
-Client message: 2|2
-Server response: Command processed
-Request statistics
-Client message: 4|2|eccar950
-Server response: 0|0|0|1
-Estuardo Carpio - erp48
-7 / 8
-Request session statistics
-Client message: 7|3|eccar950
-Server response: 0|0|0|1
+
+| Action | Message |
+| Join session | Client message: 6\|2\|eccar950
+
+Server response: 1\|2\|S S T P,R E H G,D Y R W,U U B P\|,dur,prey,yerd,wrest,burgher,gryde,… |
+| Request round start | Client message: 2\|2
+
+Server response: Command processed |
+| Request statistics | Client message: 4\|2\|eccar950
+
+Server response: 0\|0\|0\|1
+| Request session statistics | Client message: 7\|3\|eccar950
+
+Server response: 0\|0\|0\|1 |
+
 In order to create a socket-based client the BoggleClient application has to be ran indicating an IP and port number in the following way: -xxx.xxx.xxx:yyyyy. Where the – indicates that a socket will be used, the x’s represent the IP number and the y’s the port number.
-6 RMI-based Service
+
+## RMI-based Service
+
 In order to make use of the RMI interface the clients create a stub of the BoggleServerInterface. The methods that exist in this interface and its parameters are described below:
- createSession(int numPlayers, String playerName): will create a new game session and return a Session object containing the session information.
- joinSession(int sessionId, String playerName): will join the session if more players are still required and the username is unique. Returns the Session object.
- requestStart(int sessionId): indicates that the player is ready to start the game. The server will start the game round when all the start requests have been received.
- submitWord(int sessionId, String playerName, String word): submits a word for validation and return the output of the process in a BoggleResponse object.
- getStatistics(int sessionId, String playerName): asks the server to send the current round statistics for a given player, this information is sent in a BoggleResponse object.
- finalizeSession(int sessionId): this method asks the server to remove a session from the active sessions and verify if a record was broken.
- getSessionStatistics(int sessionId, String playerName): asks the server to wait until all player have requested the statistics in order to return the most up to date statistics to each user. The information is returned in a BoggleResponse object.
+
+- createSession(int numPlayers, String playerName): will create a new game session and return a Session object containing the session information.
+- joinSession(int sessionId, String playerName): will join the session if more players are still required and the username is unique. Returns the Session object.
+- requestStart(int sessionId): indicates that the player is ready to start the game. The server will start the game round when all the start requests have been received.
+- submitWord(int sessionId, String playerName, String word): submits a word for validation and return the output of the process in a BoggleResponse object.
+- getStatistics(int sessionId, String playerName): asks the server to send the current round statistics for a given player, this information is sent in a BoggleResponse object.
+- finalizeSession(int sessionId): this method asks the server to remove a session from the active sessions and verify if a record was broken.
+- getSessionStatistics(int sessionId, String playerName): asks the server to wait until all player have requested the statistics in order to return the most up to date statistics to each user. The information is returned in a BoggleResponse object.
+
 The Session or BoggleResponse objects received by the clients are then processed in order to update the GUI or control de game flow depending on the result of the request sent to the game server.
+
 In order to create an RMI-based client the BoggleClient application has to be ran indicating an IP and port number in the following way: xxx.xxx.xxx:yyyyy. Where the x’s represent the IP number and the y’s the port number.
-7 Ghost Clients
+
+## Ghost Clients
 This type of clients was created in order to simulate high demand on the server services. They connect to the server by using the RMI interface and receive a configuration parameter that determines the frequency with which the submit words to the server. In order to use this type of clients the BoggleClient application needs to be run with the following parameters:
+
 xxx.xxx.xxx:yyyyy t
+
 Where xxx.xxx.xxx.xxx is an IP address, yyyyy is a port number and t is a number between 1 and 5 that will determine the frequency of submissions made by the ghost (1 sends a request each second, 5 one each 5 seconds). An example of the needed parameters would be: 192.168.56.1:56034 1
-In figure 2 the different type of clients and their connection methods can be consulted. In this figure the thread safe classes are colored with green and the GameServer and BoggleServer classes are abstracted into a single class to make the diagram easier to analyze.
-Estuardo Carpio - erp48
-8 / 8
-Figure 2: general components diagram for the boggle server-client system
-8 Test Cases
-In order to test the correctness of the system when dealing with high demand the following test cases were tested:
- Creating a session: a simple test class was set up to send multiple session creation requests simultaneously. After the requests had been sent the contents of the ConcurrentHashMap that stores the active sessions were consulted to verify that all the sessions had been created and that the unique identifiers assigned to each one of the were in fact unique.
- Joining a session: to test this concurrency issue a game session that allowed 1000 players was created. Additionally, 2000 simple classes were set to send join requests to that same game session. After the test was completed it was verified that only 1000 players had been added to the HashMap that contains the players in the session.
- Updating, saving, loading, clearing and querying statistics: this was tested by creating many different sessions and setting up ghost players to play against each other. After each round was over the statistics were consulted and compared with the words submitted by the ghosts in order to verify that the records had been updated correctly.
- Starting a round: this was validated as a part of the test described previously. It was verified by making sure that every round started after all the ghosts had requested the start (which was made manually) and verifying that every round concluded at the same time for every ghost.
- Validating a submission: in order to validate this three simple test classes where set up to send a list of words in the same order, at the same time. After the execution was over it was verified that every words had been submitted three times and that only one of the dummy clients had been granted points, while the other two had had theirs deducted.
+
+In the figure below the different type of clients and their connection methods can be consulted. In this figure the thread safe classes are colored with green and the GameServer and BoggleServer classes are abstracted into a single class to make the diagram easier to analyze.
+
+![Class Diagram](misc/modules.PNG)
