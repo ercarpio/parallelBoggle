@@ -60,11 +60,11 @@ During each round the client will be used to submit words to the game server. Af
 - Get session statistics: this activity is executed when a boggle round is completed. It serves as a synchronization point for the clients and retrieves the statistics of the session so it can be displayed in every client.
 - Finalize session: this activity is executed when a session owner requests a session to be finalized (this is requested after all 3 rounds have been completed). This activity updates the server-wide records with the information of the recently finalized session.
 - Administrator methods: the server has administrator methods that allow administrator users to query the status of the server and manage the server-wide records. The available administrator methods are:
--- Get active games: prints a list of the active boggle sessions and the list of users that joined each one of these sessions. This method can be called by typing “print status” into the server console.
--- Print records: prints the current server-wide records. The list of records available can be consulted in section number 2 of this document. This method can be executed by typing “print records” into the server console.
--- Save records: this method saves the current records into disk by serializing the current records object. It can be executed by typing “save records” in the server console.
--- Load records: loads a set of previously saved records into the server. The file were the records are saved is called server.records and contains a serialized version of the Records object that had been saved before. In order to call this method, the administrators need to type “load records” into the server console.
--- Clear records: this method will clear the current server records, setting them to their default initial values. It can be executed by typing “clear records” in the server console.
+	- Get active games: prints a list of the active boggle sessions and the list of users that joined each one of these sessions. This method can be called by typing “print status” into the server console.
+	- Print records: prints the current server-wide records. The list of records available can be consulted in section number 2 of this document. This method can be executed by typing “print records” into the server console.
+	- Save records: this method saves the current records into disk by serializing the current records object. It can be executed by typing “save records” in the server console.
+	- Load records: loads a set of previously saved records into the server. The file were the records are saved is called server.records and contains a serialized version of the Records object that had been saved before. In order to call this method, the administrators need to type “load records” into the server console.
+	- Clear records: this method will clear the current server records, setting them to their default initial values. It can be executed by typing “clear records” in the server console.
 
 ### Parallelism
 In this system there can be multiple concurrency issues that need to be handled correctly, the main ones are discussed below:
@@ -80,12 +80,12 @@ In this system there can be multiple concurrency issues that need to be handled 
 ### Classes and Interfaces
 The classes that were implemented and the relations between them are described below and can be consulted in the figure below.
 
-![Class Diagram](misc/classes.png)
+![Class Diagram](misc/classes.PNG)
 
 - GameServer: this class is in charge of creating and handling the RMI registry and the socket connections used by client applications to connect to the boggle server.
--- ServerSocketHandler: This class handles socket connections received by the game server, it contains a thread pool that is used to process incoming requests from application clients.
---- Listener: This class implements the runnable interface and is in charge of scheduling a task for each incoming request. The tasks submitted by this class are executed by the thread pool executor of the server socket handler in order to send and receive information to and from the boggle server.
---- ConnectionHandler: This class is in charge of processing the individual requests that are received by the game server in its socket. It parses each incoming text request and translates it to a method call in the boggle server.
+	- ServerSocketHandler: This class handles socket connections received by the game server, it contains a thread pool that is used to process incoming requests from application clients.
+		- Listener: This class implements the runnable interface and is in charge of scheduling a task for each incoming request. The tasks submitted by this class are executed by the thread pool executor of the server socket handler in order to send and receive information to and from the boggle server.
+		- ConnectionHandler: This class is in charge of processing the individual requests that are received by the game server in its socket. It parses each incoming text request and translates it to a method call in the boggle server.
 - BoggleServerInterface: this interface is used to execute RMI calls from the RMI clients. It is implemented by the BoggleServer class.
 - BoggleServer: this class is in charge of handling all of the logic related with the game of boggle. It is used by many threads but delegates the handling of possible concurrent issues to other classes. It does contain some thread-safe data structures that store information about the sessions and help guarantee that the game logic will be maintained.
 - Session: this class stores some information related to the boggle session that is being played by the user. This class implements the serializable interface because it is sent over to the application clients when a new session is created or the player joins an existing session. For the same reason it contains an overridden toString() method that creates a string version of the class that is used by socket-based clients. Although it is not really needed, this class is thread safe.
@@ -98,42 +98,21 @@ The classes that were implemented and the relations between them are described b
 ## Client Technical Description
 The client applications for this game are very simple and do not use complex algorithms or classes. The actions that will be available for a player are explained below.
 Actions
- Create session: this creates a new game session by sending a request to the server. The server will send back a session id that can be used by other clients to join. The session id is sent in a session object or a string representation depending on the connection method used by the application.
- Join session: this is used by client applications to join an existing game session. The application sends a request to the server indicating the game session and, if the operation is successful, the server returns a session object or its string representation.
- Send start request: this sends the server a request to start a round. The game will start after all of the start requests are received by the server.
- Submit word: during the game the clients send words to be validated, the server will reply with a BoggleResponse object that will contain the points awarded by sending that word and other statistics for the player in the current session.
- Request statistics: this action is used in order to request the server to send the current rank, score and highest score of the round. This information is sent to the clients in a BoggleResponse object or its string representation.
-GameServerGameServerGameServer GameServerGameServerGameServerGameServerGameServerGameServer
-ServerSocketHandler ServerSocketHandlerServerSocketHandlerServerSocketHandlerServerSocketHandlerServerSocketHandler ServerSocketHandlerServerSocketHandlerServerSocketHandler ServerSocketHandlerServerSocketHandler ServerSocketHandlerServerSocketHandler
-ConnectionHandlerConnectionHandler ConnectionHandlerConnectionHandlerConnectionHandlerConnectionHandler ConnectionHandlerConnectionHandler ConnectionHandlerConnectionHandler ConnectionHandlerConnectionHandler
-ListenerListener ListenerListenerListener
-BoggleServerBoggleServer BoggleServerBoggleServerBoggleServerBoggleServerBoggleServerBoggleServerBoggleServer
-BoggleServerInterfaceBoggleServerInterface BoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterfaceBoggleServerInterface BoggleServerInterfaceBoggleServerInterface
-LocalSessionLocalSession LocalSessionLocalSessionLocalSession LocalSessionLocalSessionLocalSession
-Session SessionSessionSession Session
-Player PlayerPlayer Player
-RecordsRecordsRecordsRecords Records
-BoggleResponseBoggleResponse BoggleResponseBoggleResponseBoggleResponseBoggleResponseBoggleResponseBoggleResponse BoggleResponseBoggleResponse
-BoggleExceptionBoggleException BoggleExceptionBoggleExceptionBoggleException BoggleExceptionBoggleException BoggleExceptionBoggleException
-HandlesHandlesHandles HandlesHandlesHandles
-Stores Stores Stores
-Sends SendsSends
-ThrowsThrowsThrows
-ContainsContains ContainsContains
-Executes ExecutesExecutes ExecutesExecutesExecutes
-Executes ExecutesExecutes ExecutesExecutesExecutes
-ImplementsImplementsImplementsImplementsImplementsImplementsImplementsImplements
-Manages Manages Manages Manages
-Sendsendsendsends
-Storestores tores
-Extends ExtendsExtendsExtends Extends
-Estuardo Carpio - erp48
-6 / 8
- Finalize session: clients that own a session send this request to the server so that the server-wide records are updated with the session information and the session is removed from the active sessions set.
- Request session statistics: this requests the server to synchronize all the players of a session so that the statistics that are displayed by the GUI are updated with the most up to date information. This information is sent using a BoggleResponse object.
-5 Socket-based Service
+- Create session: this creates a new game session by sending a request to the server. The server will send back a session id that can be used by other clients to join. The session id is sent in a session object or a string representation depending on the connection method used by the application.
+- Join session: this is used by client applications to join an existing game session. The application sends a request to the server indicating the game session and, if the operation is successful, the server returns a session object or its string representation.
+- Send start request: this sends the server a request to start a round. The game will start after all of the start requests are received by the server.
+- Submit word: during the game the clients send words to be validated, the server will reply with a BoggleResponse object that will contain the points awarded by sending that word and other statistics for the player in the current session.
+- Request statistics: this action is used in order to request the server to send the current rank, score and highest score of the round. This information is sent to the clients in a BoggleResponse object or its string representation.
+- Finalize session: clients that own a session send this request to the server so that the server-wide records are updated with the session information and the session is removed from the active sessions set.
+- Request session statistics: this requests the server to synchronize all the players of a session so that the statistics that are displayed by the GUI are updated with the most up to date information. This information is sent using a BoggleResponse object.
+
+## Socket-based Service
 The communication protocol that will be used by the socket-based service is simple due to the nature of the tasks that can be executed by the client applications.
+
+
 The messages that are sent by the client to the server will consist of a series of fields separated using pipes (|). The first field will indicate the action that is being requested using a single digit with a value between 1 and 7. The rest of the fields will contain the information needed to execute the action requested.
+
+
 The possible commands and the parameters needed to execute each command are listed in the following table:
 Table 1: commands sent by application clients
 VALUE
